@@ -10,7 +10,7 @@ imshow(A);
 subplot(2,2,2),
 %O threshold com o valor de 0.23 pode ter de ser alterado dependendo do
 %exemplo que estamos a resolver. Parametro que é necessario optimizar
-BWs =~im2bw(As,0.23);
+BWs =As<0.23;
 imshow(BWs)
 %Necessario eliminar o ruido de forma a selecionar apenas o caminho
 se=strel('disk',30);
