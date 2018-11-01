@@ -2,7 +2,7 @@
 % clc
 % load newtry
 tic
-[L,N] = superpixels(A,10,'Method','slic','Compactness',10);
+[L,N] = superpixels(A,300,'Method','slic','Compactness',10);
 adj = cell(N,1);
 BW = boundarymask(L);
 %Esta parte do algoritm determina qual o valor da intensidade de cada
@@ -30,7 +30,7 @@ end
 MergeMatrix=zeros(N);
 for pixVal=1:N
     for j=length(adj{pixVal}):-1:1
-        if le(abs(ColorVector(1,pixVal)-ColorVector(1,adj{pixVal}(j))),20) %Esta é a condição de inclusão se um grupo de 
+        if le(abs(ColorVector(1,pixVal)-ColorVector(1,adj{pixVal}(j))),0.0391) %Esta é a condição de inclusão se um grupo de 
             %pixeis do no i deve ou não ser fundido com o grupo de pixeis do no j
             MergeMatrix(pixVal,adj{pixVal}(j))=1;
         end
@@ -57,8 +57,8 @@ end
  end
 BWf= boundarymask(Lf);
 subplot(1,3,1),imshow(A),title('Initial image');
-subplot(1,3,2),imshow(imoverlay(outputImage,BW,'cyan')), title('Image after SLIC method');
-subplot(1,3,3),imshow(imoverlay(outputImageF,BWf,'cyan')),title('Final result');
+subplot(1,3,2),imshow(imoverlay(A,BW,'cyan')), title('Image after SLIC method');
+subplot(1,3,3),imshow(imoverlay(A,BWf,'cyan')),title('Final result');
 figure
 plot(G), title('Graph of nodes that will be merged')
 tf=toc;
