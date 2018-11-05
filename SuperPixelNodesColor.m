@@ -1,7 +1,8 @@
 tic
-A=imread('DSC07718_geotag.JPG');
+A=imread('DSC07713_geotag.JPG');
+A=uint8(ImproveImage(A,1.5,1.05));
 B=imresize(A,1/4);
-[L,N] = superpixels(B,600,'Method','slic','Compactness',8);
+[L,N] = superpixels(B,600,'Method','slic','Compactness',5);
 adj = cell(N,1);
 BW = boundarymask(L);
 %Esta parte do algoritm determina qual o valor da intensidade de cada
@@ -13,23 +14,23 @@ numCols = size(B,2);
 %que é necessario a seguir
 ColorVector=zeros(4,N);
 for pixVal=1:N;
-    redIdx = idx{pixVal};
-    greenIdx = idx{pixVal}+numRows*numCols;
-    blueIdx = idx{pixVal}+2*numRows*numCols;
-    ColorVector(1,pixVal)=mean(B(redIdx));
-    ColorVector(2,pixVal)=mean(B(greenIdx));
-    ColorVector(3,pixVal)=mean(B(blueIdx));
-    ColorVector(4,pixVal)=length(idx{pixVal});
-    prevMask = L == pixVal;
-    currMask = imdilate(prevMask, ones(3));
-    adj{pixVal} = unique(L(currMask & ~prevMask));
+    redIdx               = idx{pixVal};
+    greenIdx             = idx{pixVal}+numRows*numCols;
+    blueIdx              = idx{pixVal}+2*numRows*numCols;
+    ColorVector(1,pixVal)= mean(B(redIdx));
+    ColorVector(2,pixVal)= mean(B(greenIdx));
+    ColorVector(3,pixVal)= mean(B(blueIdx));
+    ColorVector(4,pixVal)= length(idx{pixVal});
+    prevMask             = (L == pixVal);
+    currMask             = imdilate(prevMask, ones(3));
+    adj{pixVal}          = unique(L(currMask & ~prevMask));
 end
 %Esta parte do codigo usa a cell adj que contem os nós adjacentes e
 %verifica se esses nós devem ser fundidos ou não
 MergeMatrix=zeros(N);
 for pixVal=1:N
     for j=1:length(adj{pixVal})
-        if  ColorCondition(pixVal,adj{pixVal}(j),ColorVector,30)%Esta é a condição de inclusão se um grupo de 
+        if  ColorConditionNorm(pixVal,adj{pixVal}(j),ColorVector,15) %&& statisticsOfImage() %Esta é a condição de inclusão se um grupo de 
             %pixeis do no i deve ou não ser fundido com o grupo de pixeis do no j
             MergeMatrix(pixVal,adj{pixVal}(j))=1;
         end
@@ -54,9 +55,10 @@ end
      Lf(idxfinal{Run})=Run;
  end
 BWf= boundarymask(Lf);
-subplot(1,3,1),imshow(B),title('Initial image');
-subplot(1,3,2),imshow(imoverlay(B,BW,'cyan')), title('Image after SLIC method');
-subplot(1,3,3),imshow(imoverlay(B,BWf,'cyan')),title('Final result');
+figure,imshow(B),title('Initial image');
+figure,
+multi=cat(4,imoverlay(B,BW,'cyan'),imoverlay(B,BWf,'cyan'));
+hIm = imdisp(multi,'Border',[0.005 0.005]);
 figure
 plot(G), title('Graph of nodes that will be merged')
 figure
